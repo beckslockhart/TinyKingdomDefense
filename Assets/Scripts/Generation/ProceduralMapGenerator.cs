@@ -220,6 +220,7 @@ public class ProceduralMapGenerator : MonoBehaviour
             + Vector3.up * 2f;
 
         placeholderTower.transform.localScale = new Vector3(3f, 4f, 3f);
+        placeholderTower.AddComponent<TowerHealth>();
     }
 
    
