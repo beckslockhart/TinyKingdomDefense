@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6910145474860281569}
   - component: {fileID: 1490501789842706469}
   - component: {fileID: 7609121664371514082}
+  - component: {fileID: -516855242045993582}
   m_Layer: 0
   m_Name: GoblinPlaceholder
   m_TagString: Untagged
@@ -129,3 +130,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
   movementSpeed: 3
   heightAbovePath: 0.75
+  attackDamage: 10
+  attackInterval: 1
+--- !u!114 &-516855242045993582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 753092691098206456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a20b778b2dc27154da5929e6dba05064, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  maximumHealth: 50

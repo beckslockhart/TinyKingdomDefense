@@ -10,8 +10,8 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private float heightAbovePath = 0.75f;
 
     [Header("Attack")]
-    [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackInterval = 1f;
+    [SerializeField] private int attackDamage = 5;
+    [SerializeField] private float attackInterval = 2f;
 
     private List<Vector3> path;
     private int currentWaypointIndex;

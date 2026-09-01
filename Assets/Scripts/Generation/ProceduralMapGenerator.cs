@@ -221,6 +221,7 @@ public class ProceduralMapGenerator : MonoBehaviour
 
         placeholderTower.transform.localScale = new Vector3(3f, 4f, 3f);
         placeholderTower.AddComponent<TowerHealth>();
+        placeholderTower.AddComponent<TowerAttack>();
     }
 
    

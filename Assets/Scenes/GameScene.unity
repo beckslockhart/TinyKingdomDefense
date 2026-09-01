@@ -151,7 +151,7 @@ MonoBehaviour:
   mapGenerator: {fileID: 1911932803}
   enemyPrefab: {fileID: 7609121664371514082, guid: 10f7fe370bff5fc409c04bd704d3bf37, type: 3}
   firstSpawnDelay: 1
-  spawnInterval: 2.5
+  spawnInterval: 3
 --- !u!4 &64143578
 Transform:
   m_ObjectHideFlags: 0

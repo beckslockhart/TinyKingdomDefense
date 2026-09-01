@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TowerHealth : MonoBehaviour
 {
-    [SerializeField] private int maximumHealth = 100;
+    [SerializeField] private int maximumHealth = 200;
 
     private int currentHealth;
 
