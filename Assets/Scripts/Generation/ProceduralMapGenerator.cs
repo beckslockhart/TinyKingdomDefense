@@ -17,8 +17,13 @@ public class ProceduralMapGenerator : MonoBehaviour
     [SerializeField] private Material grassMaterial;
     [SerializeField] private Material pathMaterial;
 
+    [Header("Defender Placement")]
+    [SerializeField] private GameObject placementSpotPrefab;
+    [SerializeField] private int numberOfPlacementSpots = 10;
+
     private readonly HashSet<Vector2Int> pathCells = new();
     private readonly List<List<Vector3>> generatedPaths = new();
+    private readonly List<GameObject> generatedPlacementSpots = new();
 
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -40,11 +45,14 @@ public class ProceduralMapGenerator : MonoBehaviour
    
     public void GenerateMap()
     {
+        ClearGeneratedPlacementSpots();
+
         pathCells.Clear();
         generatedPaths.Clear();
 
         GeneratePaths();
         GenerateTerrainMesh();
+        GeneratePlacementSpots();
         CreatePlaceholderTower();
     }
 
@@ -205,8 +213,115 @@ public class ProceduralMapGenerator : MonoBehaviour
         triangles.Add(startingVertex + 3);
     }
 
+   private void GeneratePlacementSpots()
+{
+    if (placementSpotPrefab == null)
+    {
+        Debug.LogWarning("No placement spot prefab has been assigned.");
+        return;
+    }
+
+    Vector2Int centre = new(gridSize / 2, gridSize / 2);
+    HashSet<Vector2Int> candidateSet = new();
+
+    Vector2Int[] neighbourDirections =
+    {
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right
+    };
+
+    foreach (Vector2Int pathCell in pathCells)
+    {
+        foreach (Vector2Int direction in neighbourDirections)
+        {
+            Vector2Int candidate = pathCell + direction;
+
+            if (!IsInsideMap(candidate))
+            {
+                continue;
+            }
+
+            if (pathCells.Contains(candidate))
+            {
+                continue;
+            }
+
+            int distanceFromTower =
+                Mathf.Abs(candidate.x - centre.x)
+                + Mathf.Abs(candidate.y - centre.y);
+
+            if (distanceFromTower <= 2)
+            {
+                continue;
+            }
+
+            candidateSet.Add(candidate);
+        }
+    }
+
+    List<Vector2Int> candidates = new(candidateSet);
+    ShuffleCells(candidates);
+
+    int spotsToCreate = Mathf.Min(
+        numberOfPlacementSpots,
+        candidates.Count
+    );
+
+    for (int i = 0; i < spotsToCreate; i++)
+    {
+        Vector3 spawnPosition =
+            GridToWorldPosition(candidates[i]) + Vector3.up * 0.1f;
+
+        GameObject newSpot = Instantiate(
+            placementSpotPrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        newSpot.name = $"Defender Placement Spot {i + 1}";
+        generatedPlacementSpots.Add(newSpot);
+    }
+}
+
    
-    private void CreatePlaceholderTower()
+private bool IsInsideMap(Vector2Int cell)
+{
+    return cell.x >= 0
+           && cell.x < gridSize
+           && cell.y >= 0
+           && cell.y < gridSize;
+}
+
+
+private void ShuffleCells(List<Vector2Int> cells)
+{
+    for (int i = cells.Count - 1; i > 0; i--)
+    {
+        int randomIndex = Random.Range(0, i + 1);
+
+        (cells[i], cells[randomIndex]) =
+            (cells[randomIndex], cells[i]);
+    }
+}
+
+
+private void ClearGeneratedPlacementSpots()
+{
+    foreach (GameObject placementSpot in generatedPlacementSpots)
+    {
+        if (placementSpot != null)
+        {
+            Destroy(placementSpot);
+        }
+    }
+
+    generatedPlacementSpots.Clear();
+}
+    
+
+private void CreatePlaceholderTower()
     {
         if (placeholderTower != null)
         {

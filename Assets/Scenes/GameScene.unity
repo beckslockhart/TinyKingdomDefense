@@ -518,6 +518,8 @@ MonoBehaviour:
   numberOfPaths: 3
   grassMaterial: {fileID: 2100000, guid: 386f1d360021531488f36aa27e84c840, type: 2}
   pathMaterial: {fileID: 2100000, guid: 4a4326bf6a95eac44842accc2c08995c, type: 2}
+  placementSpotPrefab: {fileID: 5962474889007953709, guid: 6a8650f239145734885704f8e3bb1e3e, type: 3}
+  numberOfPlacementSpots: 10
 --- !u!64 &1911932804
 MeshCollider:
   m_ObjectHideFlags: 0
