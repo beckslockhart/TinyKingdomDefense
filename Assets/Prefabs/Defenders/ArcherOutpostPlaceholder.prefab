@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5962474889007953709
+--- !u!1 &8156804369098633659
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,48 +8,49 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7593539291564187121}
-  - component: {fileID: 8648852405189397826}
-  - component: {fileID: 4198290446304806982}
-  - component: {fileID: 1479532730925639200}
-  - component: {fileID: 3424983770113212261}
+  - component: {fileID: 8645628850222471954}
+  - component: {fileID: 1938367495604284345}
+  - component: {fileID: 1149033719449654131}
+  - component: {fileID: 6036656514097323839}
+  - component: {fileID: 3440023892797870222}
+  - component: {fileID: 4804040468838884951}
   m_Layer: 0
-  m_Name: DefenderPlacementSpot
+  m_Name: ArcherOutpostPlaceholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7593539291564187121
+--- !u!4 &8645628850222471954
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5962474889007953709}
+  m_GameObject: {fileID: 8156804369098633659}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.85712, y: -0, z: -88.74191}
-  m_LocalScale: {x: 0.7, y: 0.08, z: 0.7}
+  m_LocalScale: {x: 0.6, y: 0.8, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &8648852405189397826
+--- !u!33 &1938367495604284345
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5962474889007953709}
+  m_GameObject: {fileID: 8156804369098633659}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &4198290446304806982
+--- !u!23 &1149033719449654131
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5962474889007953709}
+  m_GameObject: {fileID: 8156804369098633659}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -68,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 550afaa063a14e9479de0f49daba4333, type: 2}
+  - {fileID: 2100000, guid: fb7903a50ed5b6947bf365a3ce7af6a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -92,13 +93,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &1479532730925639200
+--- !u!136 &6036656514097323839
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5962474889007953709}
+  m_GameObject: {fileID: 8156804369098633659}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -115,18 +116,31 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!114 &3424983770113212261
+--- !u!114 &3440023892797870222
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5962474889007953709}
+  m_GameObject: {fileID: 8156804369098633659}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 591c485c744636a46a34c41df491fd69, type: 3}
+  m_Script: {fileID: 11500000, guid: 835b0fbd091cd6f41a7503b76bd06e21, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DefenderPlacementSpot
-  defenderPrefab: {fileID: 8156804369098633659, guid: 2c934a54b72cd4943bd3fed59750c8b8, type: 3}
-  defenderCost: 50
-  defenderHeight: 1
+  m_EditorClassIdentifier: Assembly-CSharp::DefenderHealth
+  maximumHealth: 75
+--- !u!114 &4804040468838884951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8156804369098633659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f27a573e3fa8f54e8627ff5e812dce7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefenderAttack
+  attackRange: 7
+  attackDamage: 20
+  attackInterval: 0.8
