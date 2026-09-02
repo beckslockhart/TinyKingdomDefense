@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     [SerializeField] private int maximumHealth = 50;
+    [SerializeField] private int goldReward = 25;
 
     private int currentHealth;
     private bool isDead;
@@ -61,7 +62,18 @@ public class EnemyHealth : MonoBehaviour
    
     private void Die()
     {
+        if (isDead)
+        {
+            return;
+        }
+
         isDead = true;
+
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.AddGold(goldReward);
+        }
+
         Destroy(gameObject);
     }
 }
