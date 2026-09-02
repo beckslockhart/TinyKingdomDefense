@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class DefenderAttack : MonoBehaviour
 {
-    [SerializeField] private float attackRange = 7f;
-    [SerializeField] private int attackDamage = 20;
-    [SerializeField] private float attackInterval = 0.8f;
+    [SerializeField] private float attackRange = 5f;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackInterval = 1.2f;
 
     private void Start()
     {

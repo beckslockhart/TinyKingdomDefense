@@ -5,9 +5,9 @@ using UnityEngine;
 public class TowerAttack : MonoBehaviour
 {
     [Header("Attack Settings")]
-    [SerializeField] private float attackRange = 6f;
-    [SerializeField] private int attackDamage = 15;
-    [SerializeField] private float attackInterval = 1f;
+    [SerializeField] private float attackRange = 3.5f;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackInterval = 1.5f;
 
     
     private void Start()
