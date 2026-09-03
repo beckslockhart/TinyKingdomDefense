@@ -4,39 +4,62 @@ using UnityEngine.InputSystem;
 
 public class DefenderPlacementSpot : MonoBehaviour
 {
+    [Header("Placement")]
     [SerializeField] private GameObject defenderPrefab;
     [SerializeField] private int defenderCost = 50;
     [SerializeField] private float defenderHeight = 1f;
 
+    [Header("Feedback Colours")]
+    [SerializeField] private Color affordableColour = Color.green;
+    [SerializeField] private Color unaffordableColour = Color.red;
+
+    
     private bool isOccupied;
     private Camera mainCamera;
+    private Renderer spotRenderer;
+    private Color originalColour;
 
     
     private void Awake()
     {
         mainCamera = Camera.main;
+        spotRenderer = GetComponentInChildren<Renderer>();
+
+        if (spotRenderer != null)
+        {
+            originalColour = spotRenderer.material.color;
+        }
     }
 
     
     private void Update()
     {
-        if (Mouse.current == null)
+        if (Mouse.current == null || isOccupied)
         {
             return;
         }
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        bool mouseIsOverSpot = IsMouseOverSpot();
+        UpdateAppearance(mouseIsOverSpot);
+
+        if (mouseIsOverSpot &&
+            Mouse.current.leftButton.wasPressedThisFrame)
         {
-            CheckForClick();
+            TryPlaceDefender();
         }
     }
 
     
-    private void CheckForClick()
+    private bool IsMouseOverSpot()
     {
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
+        }
+
+        if (mainCamera == null)
+        {
+            return false;
         }
 
         Vector2 mousePosition = Mouse.current.position.ReadValue();
@@ -44,11 +67,33 @@ public class DefenderPlacementSpot : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            if (hit.transform == transform)
-            {
-                TryPlaceDefender();
-            }
+            return hit.transform == transform ||
+                   hit.transform.IsChildOf(transform);
         }
+
+        return false;
+    }
+
+    
+    private void UpdateAppearance(bool mouseIsOverSpot)
+    {
+        if (spotRenderer == null)
+        {
+            return;
+        }
+
+        if (!mouseIsOverSpot)
+        {
+            spotRenderer.material.color = originalColour;
+            return;
+        }
+
+        bool canAfford =
+            CurrencyManager.Instance != null &&
+            CurrencyManager.Instance.CurrentGold >= defenderCost;
+
+        spotRenderer.material.color =
+            canAfford ? affordableColour : unaffordableColour;
     }
 
     
