@@ -20,6 +20,13 @@ public class EnemyHealth : MonoBehaviour
     }
 
     
+    public void IncreaseMaximumHealth(int additionalHealth)
+    {
+        maximumHealth += additionalHealth;
+        currentHealth += additionalHealth;
+    }
+    
+    
     public void TakeDamage(int damageAmount)
     {
         if (isDead)

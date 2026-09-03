@@ -57,6 +57,12 @@ public class TowerHealth : MonoBehaviour
     private void TowerDestroyed()
     {
         Debug.Log("GAME OVER — The tower has been destroyed!");
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.EndGame();
+        }
+
         gameObject.SetActive(false);
     }
 }

@@ -12,6 +12,13 @@ public class EnemySpawner : MonoBehaviour
     [Header("Spawn Settings")]
     [SerializeField] private float firstSpawnDelay = 1f;
     [SerializeField] private float spawnInterval = 2.5f;
+    
+    [Header("Basic Difficulty Progression")]
+    [SerializeField] private int enemiesPerDifficultyIncrease = 8;
+    [SerializeField] private int healthIncreasePerLevel = 10;
+
+    private int enemiesSpawned;
+    private int currentDifficultyLevel;
 
     private Coroutine spawningCoroutine;
 
@@ -47,8 +54,32 @@ public class EnemySpawner : MonoBehaviour
         int selectedPathIndex = Random.Range(0, availablePaths.Count);
         List<Vector3> selectedPath = availablePaths[selectedPathIndex];
 
+        currentDifficultyLevel =
+            enemiesSpawned / enemiesPerDifficultyIncrease;
+
         EnemyMovement newEnemy = Instantiate(enemyPrefab);
-        newEnemy.name = "Goblin";
+        newEnemy.name = $"Goblin - Level {currentDifficultyLevel + 1}";
         newEnemy.Initialise(selectedPath);
+
+        EnemyHealth enemyHealth =
+            newEnemy.GetComponent<EnemyHealth>();
+
+        if (enemyHealth != null)
+        {
+            int additionalHealth =
+                currentDifficultyLevel * healthIncreasePerLevel;
+
+            enemyHealth.IncreaseMaximumHealth(additionalHealth);
+        }
+
+        enemiesSpawned++;
+
+        if (enemiesSpawned % enemiesPerDifficultyIncrease == 0)
+        {
+            Debug.Log(
+                $"Goblin difficulty increased! " +
+                $"Next level: {currentDifficultyLevel + 2}"
+            );
+        }
     }
 }
