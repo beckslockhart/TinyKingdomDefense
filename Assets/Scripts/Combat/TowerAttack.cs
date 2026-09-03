@@ -8,6 +8,7 @@ public class TowerAttack : MonoBehaviour
     [SerializeField] private float attackRange = 3.5f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackInterval = 1.5f;
+    [SerializeField] private AttackProjectile projectilePrefab;
 
     
     private void Start()
@@ -24,14 +25,40 @@ public class TowerAttack : MonoBehaviour
 
             if (nearestEnemy != null)
             {
-                nearestEnemy.TakeDamage(attackDamage);
+                FireProjectile(nearestEnemy);
             }
 
             yield return new WaitForSeconds(attackInterval);
         }
     }
 
-   
+    public void SetProjectilePrefab(AttackProjectile newProjectilePrefab)
+    {
+        projectilePrefab = newProjectilePrefab;
+    }
+
+    
+    private void FireProjectile(EnemyHealth targetEnemy)
+    {
+        if (projectilePrefab == null)
+        {
+            targetEnemy.TakeDamage(attackDamage);
+            return;
+        }
+
+        Vector3 spawnPosition =
+            transform.position + Vector3.up * 1.5f;
+
+        AttackProjectile newProjectile = Instantiate(
+            projectilePrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        newProjectile.Initialise(targetEnemy, attackDamage);
+    }
+    
+    
     private EnemyHealth FindNearestEnemy()
     {
         EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(

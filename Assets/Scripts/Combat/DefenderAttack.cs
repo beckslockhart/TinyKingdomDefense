@@ -7,6 +7,7 @@ public class DefenderAttack : MonoBehaviour
     [SerializeField] private float attackRange = 5f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackInterval = 1.2f;
+    [SerializeField] private AttackProjectile projectilePrefab;
 
     private void Start()
     {
@@ -22,11 +23,32 @@ public class DefenderAttack : MonoBehaviour
 
             if (nearestEnemy != null)
             {
-                nearestEnemy.TakeDamage(attackDamage);
+                FireProjectile(nearestEnemy);
             }
 
             yield return new WaitForSeconds(attackInterval);
         }
+    }
+    
+    
+    private void FireProjectile(EnemyHealth targetEnemy)
+    {
+        if (projectilePrefab == null)
+        {
+            targetEnemy.TakeDamage(attackDamage);
+            return;
+        }
+
+        Vector3 spawnPosition =
+            transform.position + Vector3.up * 1.2f;
+
+        AttackProjectile newProjectile = Instantiate(
+            projectilePrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        newProjectile.Initialise(targetEnemy, attackDamage);
     }
 
     

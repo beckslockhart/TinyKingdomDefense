@@ -20,6 +20,9 @@ public class ProceduralMapGenerator : MonoBehaviour
     [Header("Defender Placement")]
     [SerializeField] private GameObject placementSpotPrefab;
     [SerializeField] private int numberOfPlacementSpots = 10;
+    
+    [Header("Combat")]
+    [SerializeField] private AttackProjectile projectilePrefab;
 
     private readonly HashSet<Vector2Int> pathCells = new();
     private readonly List<List<Vector3>> generatedPaths = new();
@@ -213,6 +216,7 @@ public class ProceduralMapGenerator : MonoBehaviour
         triangles.Add(startingVertex + 3);
     }
 
+    
    private void GeneratePlacementSpots()
 {
     if (placementSpotPrefab == null)
@@ -336,7 +340,11 @@ private void CreatePlaceholderTower()
 
         placeholderTower.transform.localScale = new Vector3(3f, 4f, 3f);
         placeholderTower.AddComponent<TowerHealth>();
-        placeholderTower.AddComponent<TowerAttack>();
+
+        TowerAttack towerAttack =
+            placeholderTower.AddComponent<TowerAttack>();
+
+        towerAttack.SetProjectilePrefab(projectilePrefab);
     }
 
    
