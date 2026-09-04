@@ -2452,25 +2452,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fce8e4124fe14584a95c63ef4d515eaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralMapGenerator
-  gridSizeX: 25
-  gridSizeZ: 17
+  gridSize: 17
   tileSize: 2
   grassHeightVariation: 0.25
-  numberOfPaths: 4
+  numberOfPaths: 3
   grassMaterial: {fileID: 2100000, guid: 386f1d360021531488f36aa27e84c840, type: 2}
   pathMaterial: {fileID: 2100000, guid: 4a4326bf6a95eac44842accc2c08995c, type: 2}
   placementSpotPrefab: {fileID: 5962474889007953709, guid: 6a8650f239145734885704f8e3bb1e3e, type: 3}
   numberOfPlacementSpots: 10
-  forestClusterPrefab: {fileID: 812898277746545370, guid: adb882bff3a5ee74a930553387239f68, type: 3}
-  numberOfForestClusters: 100
-  forestScale: 1
-  forestYOffset: 0.03
-  forestPathClearance: 2
-  minimumForestSpacing: 3
   projectilePrefab: {fileID: 863979787802589119, guid: 5b4638fdc97c26044848539b0debaab6, type: 3}
-  castleVisualPrefab: {fileID: 5680029819986627075, guid: 9b8020b2b1e49594186918307333c52b, type: 3}
-  castleVisualScale: 1
-  castleVisualOffset: {x: 0, y: 0, z: 0}
+  straightPathTile: {fileID: 919132149155446097, guid: 5327f7cba29b71a4a93a2876c5281e60, type: 3}
+  cornerPathTile: {fileID: 919132149155446097, guid: b7020d7fb8dbf2e478e6e68d01f6c49c, type: 3}
+  threeWayPathTile: {fileID: 919132149155446097, guid: b5bde753329c52743901af193de234d2, type: 3}
+  fourWayPathTile: {fileID: 919132149155446097, guid: 29aeb8ff96963e0439df1ffceea22776, type: 3}
+  endPathTile: {fileID: 919132149155446097, guid: b4a68923a22a8e549aab4c627f70f15f, type: 3}
+  pathTileYOffset: 0.03
+  pathTileScale: 2
 --- !u!64 &1911932804
 MeshCollider:
   m_ObjectHideFlags: 0

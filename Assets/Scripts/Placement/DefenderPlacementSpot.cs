@@ -12,6 +12,15 @@ public class DefenderPlacementSpot : MonoBehaviour
     [Header("Feedback Colours")]
     [SerializeField] private Color affordableColour = Color.green;
     [SerializeField] private Color unaffordableColour = Color.red;
+    
+    [Header("Path Tile Visuals")]
+    [SerializeField] private GameObject straightPathTile;
+    [SerializeField] private GameObject cornerPathTile;
+    [SerializeField] private GameObject threeWayPathTile;
+    [SerializeField] private GameObject fourWayPathTile;
+    [SerializeField] private GameObject endPathTile;
+    [SerializeField] private float pathTileYOffset = 0.03f;
+    [SerializeField] private float pathTileScale = 1f;
 
     
     private bool isOccupied;

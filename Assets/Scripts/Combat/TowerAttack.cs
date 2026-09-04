@@ -47,7 +47,7 @@ public class TowerAttack : MonoBehaviour
         }
 
         Vector3 spawnPosition =
-            transform.position + Vector3.up * 1.5f;
+            transform.position + Vector3.up * 3f;
 
         AttackProjectile newProjectile = Instantiate(
             projectilePrefab,

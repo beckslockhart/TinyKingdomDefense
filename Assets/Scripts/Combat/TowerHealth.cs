@@ -35,7 +35,7 @@ public class TowerHealth : MonoBehaviour
   
     private System.Collections.IEnumerator DamageFlash()
     {
-        Renderer towerRenderer = GetComponent<Renderer>();
+        Renderer towerRenderer = GetComponentInChildren<Renderer>();
 
         if (towerRenderer == null)
         {
