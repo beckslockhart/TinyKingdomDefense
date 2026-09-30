@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-
 public class DefenderHealth : MonoBehaviour
 {
     [SerializeField] private int maximumHealth = 75;
@@ -11,16 +10,16 @@ public class DefenderHealth : MonoBehaviour
 
     public int CurrentHealth => currentHealth;
     public int MaximumHealth => maximumHealth;
+    public bool IsDestroyed => isDestroyed;
 
     private void Awake()
     {
         currentHealth = maximumHealth;
     }
 
-    
     public void TakeDamage(int damageAmount)
     {
-        if (isDestroyed)
+        if (isDestroyed || damageAmount <= 0)
         {
             return;
         }
@@ -36,30 +35,37 @@ public class DefenderHealth : MonoBehaviour
         }
     }
 
-    
     private IEnumerator DamageFlash()
     {
-        Renderer defenderRenderer = GetComponent<Renderer>();
+        Renderer defenderRenderer =
+            GetComponentInChildren<Renderer>();
 
         if (defenderRenderer == null)
         {
             yield break;
         }
 
-        Color originalColour = defenderRenderer.material.color;
+        Color originalColour =
+            defenderRenderer.material.color;
+
         defenderRenderer.material.color = Color.red;
 
         yield return new WaitForSeconds(0.1f);
 
-        if (defenderRenderer != null)
+        if (defenderRenderer != null && !isDestroyed)
         {
-            defenderRenderer.material.color = originalColour;
+            defenderRenderer.material.color =
+                originalColour;
         }
     }
 
-    
     private void DestroyDefender()
     {
+        if (isDestroyed)
+        {
+            return;
+        }
+
         isDestroyed = true;
         Destroy(gameObject);
     }

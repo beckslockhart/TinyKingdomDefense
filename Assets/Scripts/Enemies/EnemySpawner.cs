@@ -38,6 +38,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float difficultyAdjustment = 0.1f;
     [SerializeField] private float fastWaveCompletionTime = 30f;
 
+    [Header("Play Style Adaptation")]
+    [SerializeField] private float baseRunnerChance = 0.35f;
+    [SerializeField] private float baseBruteChance = 0.2f;
+    [SerializeField] private float playStyleChanceIncrease = 0.2f;
+
     private int currentWave;
     private int activeEnemies;
     private int previousPathIndex = -1;
@@ -46,6 +51,9 @@ public class EnemySpawner : MonoBehaviour
     private float timeUntilNextWave;
     private int startingCastleHealth;
 
+    private float currentRunnerChance;
+    private float currentBruteChance;
+
     private bool isBetweenWaves;
     private TowerHealth towerHealth;
 
@@ -53,6 +61,7 @@ public class EnemySpawner : MonoBehaviour
     public int EnemiesRemaining => activeEnemies;
     public float TimeUntilNextWave => timeUntilNextWave;
     public bool IsBetweenWaves => isBetweenWaves;
+
     public float AdaptiveDifficultyMultiplier =>
         adaptiveDifficultyMultiplier;
 
@@ -76,8 +85,8 @@ public class EnemySpawner : MonoBehaviour
             startingCastleHealth = towerHealth.CurrentHealth;
         }
 
-        timeUntilNextWave = firstWaveDelay;
         isBetweenWaves = true;
+        timeUntilNextWave = firstWaveDelay;
 
         while (timeUntilNextWave > 0f)
         {
@@ -90,6 +99,8 @@ public class EnemySpawner : MonoBehaviour
             currentWave++;
             isBetweenWaves = false;
             waveStartTime = Time.time;
+
+            AnalyseDefenderPlayStyle();
 
             yield return StartCoroutine(SpawnWave());
 
@@ -122,9 +133,11 @@ public class EnemySpawner : MonoBehaviour
         );
 
         Debug.Log(
-            $"Wave {currentWave} started with a budget of " +
-            $"{remainingBudget}. Difficulty multiplier: " +
-            $"{adaptiveDifficultyMultiplier:F2}"
+            $"Wave {currentWave} started. " +
+            $"Budget: {remainingBudget}. " +
+            $"Difficulty: {adaptiveDifficultyMultiplier:F2}. " +
+            $"Runner chance: {currentRunnerChance:P0}. " +
+            $"Brute chance: {currentBruteChance:P0}."
         );
 
         while (remainingBudget > 0)
@@ -138,7 +151,6 @@ public class EnemySpawner : MonoBehaviour
             }
 
             SpawnEnemy(selectedPrefab);
-
             remainingBudget -= GetEnemyCost(selectedPrefab);
 
             float adjustedSpawnInterval = Mathf.Max(
@@ -146,11 +158,107 @@ public class EnemySpawner : MonoBehaviour
                 baseSpawnInterval / adaptiveDifficultyMultiplier
             );
 
-            yield return new WaitForSeconds(adjustedSpawnInterval);
+            yield return new WaitForSeconds(
+                adjustedSpawnInterval
+            );
         }
     }
 
-    private EnemyMovement SelectEnemyPrefab(int remainingBudget)
+    private void AnalyseDefenderPlayStyle()
+    {
+        DefenderAttack[] defenders =
+            FindObjectsByType<DefenderAttack>(
+                FindObjectsSortMode.None
+            );
+
+        int archerCount = 0;
+        int cannonCount = 0;
+        int frostCount = 0;
+
+        foreach (DefenderAttack defender in defenders)
+        {
+            switch (defender.DefenderType)
+            {
+                case DefenderAttackType.Cannon:
+                    cannonCount++;
+                    break;
+
+                case DefenderAttackType.Frost:
+                    frostCount++;
+                    break;
+
+                default:
+                    archerCount++;
+                    break;
+            }
+        }
+
+        currentRunnerChance = baseRunnerChance;
+        currentBruteChance = baseBruteChance;
+
+        string detectedPlayStyle = "Balanced";
+
+        if (cannonCount > archerCount &&
+            cannonCount > frostCount)
+        {
+            currentRunnerChance += playStyleChanceIncrease;
+            detectedPlayStyle = "Cannon-heavy";
+        }
+        else if (frostCount > archerCount &&
+                 frostCount > cannonCount)
+        {
+            currentBruteChance += playStyleChanceIncrease;
+            detectedPlayStyle = "Frost-heavy";
+        }
+        else if (archerCount > cannonCount &&
+                 archerCount > frostCount)
+        {
+            currentRunnerChance += 0.08f;
+            currentBruteChance += 0.08f;
+            detectedPlayStyle = "Archer-heavy";
+        }
+
+        if (defenders.Length >= 5)
+        {
+            currentBruteChance += 0.1f;
+        }
+        else if (defenders.Length <= 1)
+        {
+            currentRunnerChance += 0.1f;
+        }
+
+        currentRunnerChance = Mathf.Clamp(
+            currentRunnerChance,
+            0f,
+            0.65f
+        );
+
+        currentBruteChance = Mathf.Clamp(
+            currentBruteChance,
+            0f,
+            0.65f
+        );
+
+        float combinedChance =
+            currentRunnerChance + currentBruteChance;
+
+        if (combinedChance > 0.9f)
+        {
+            currentRunnerChance =
+                0.9f - currentBruteChance;
+        }
+
+        Debug.Log(
+            $"Detected play style: {detectedPlayStyle}. " +
+            $"Archers: {archerCount}, " +
+            $"Cannons: {cannonCount}, " +
+            $"Frost: {frostCount}."
+        );
+    }
+
+    private EnemyMovement SelectEnemyPrefab(
+        int remainingBudget
+    )
     {
         bool runnerAvailable =
             currentWave >= runnerUnlockWave &&
@@ -162,35 +270,17 @@ public class EnemySpawner : MonoBehaviour
             bruteGoblinPrefab != null &&
             remainingBudget >= bruteGoblinCost;
 
-        int defenderCount =
-            FindObjectsByType<DefenderHealth>(
-                FindObjectsSortMode.None
-            ).Length;
-
-        float bruteChance = 0.2f;
-        float runnerChance = 0.35f;
-
-        // More defenders cause a slightly higher chance of Brutes.
-        if (defenderCount >= 4)
-        {
-            bruteChance += 0.15f;
-        }
-
-        // Few defenders cause more fast but weaker Runners.
-        if (defenderCount <= 2)
-        {
-            runnerChance += 0.1f;
-        }
-
         float randomValue = Random.value;
 
-        if (bruteAvailable && randomValue < bruteChance)
+        if (bruteAvailable &&
+            randomValue < currentBruteChance)
         {
             return bruteGoblinPrefab;
         }
 
         if (runnerAvailable &&
-            randomValue < bruteChance + runnerChance)
+            randomValue <
+            currentBruteChance + currentRunnerChance)
         {
             return runnerGoblinPrefab;
         }
@@ -219,22 +309,24 @@ public class EnemySpawner : MonoBehaviour
         IReadOnlyList<List<Vector3>> availablePaths =
             mapGenerator.GeneratedPaths;
 
-        if (availablePaths.Count == 0 || enemyPrefab == null)
+        if (availablePaths.Count == 0 ||
+            enemyPrefab == null)
         {
             return;
         }
 
-        int selectedPathIndex = SelectPathIndex(
-            availablePaths.Count
-        );
+        int selectedPathIndex =
+            SelectPathIndex(availablePaths.Count);
 
         List<Vector3> selectedPath =
             availablePaths[selectedPathIndex];
 
-        EnemyMovement newEnemy = Instantiate(enemyPrefab);
+        EnemyMovement newEnemy =
+            Instantiate(enemyPrefab);
 
         newEnemy.name =
-            $"{newEnemy.BehaviourType} Goblin - Wave {currentWave}";
+            $"{newEnemy.BehaviourType} Goblin - " +
+            $"Wave {currentWave}";
 
         EnemyHealth enemyHealth =
             newEnemy.GetComponent<EnemyHealth>();
@@ -242,14 +334,17 @@ public class EnemySpawner : MonoBehaviour
         if (enemyHealth != null)
         {
             int healthLevel =
-                (currentWave - 1) / wavesPerHealthIncrease;
+                (currentWave - 1) /
+                wavesPerHealthIncrease;
 
             int additionalHealth =
                 healthLevel * healthIncreaseAmount;
 
-            enemyHealth.IncreaseMaximumHealth(additionalHealth);
-            enemyHealth.Died += HandleEnemyDeath;
+            enemyHealth.IncreaseMaximumHealth(
+                additionalHealth
+            );
 
+            enemyHealth.Died += HandleEnemyDeath;
             activeEnemies++;
         }
 
@@ -268,7 +363,8 @@ public class EnemySpawner : MonoBehaviour
 
         do
         {
-            selectedPathIndex = Random.Range(0, pathCount);
+            selectedPathIndex =
+                Random.Range(0, pathCount);
         }
         while (selectedPathIndex == previousPathIndex);
 
@@ -276,7 +372,9 @@ public class EnemySpawner : MonoBehaviour
         return selectedPathIndex;
     }
 
-    private int GetEnemyCost(EnemyMovement enemyPrefab)
+    private int GetEnemyCost(
+        EnemyMovement enemyPrefab
+    )
     {
         if (enemyPrefab == bruteGoblinPrefab)
         {
@@ -291,25 +389,33 @@ public class EnemySpawner : MonoBehaviour
         return standardGoblinCost;
     }
 
-    private void HandleEnemyDeath(EnemyHealth defeatedEnemy)
+    private void HandleEnemyDeath(
+        EnemyHealth defeatedEnemy
+    )
     {
         defeatedEnemy.Died -= HandleEnemyDeath;
-        activeEnemies = Mathf.Max(0, activeEnemies - 1);
+
+        activeEnemies =
+            Mathf.Max(0, activeEnemies - 1);
     }
 
     private void EvaluatePlayerPerformance()
     {
-        float completedWaveTime = Time.time - waveStartTime;
+        float completedWaveTime =
+            Time.time - waveStartTime;
+
         float adjustment = 0f;
 
-        if (towerHealth != null && startingCastleHealth > 0)
+        if (towerHealth != null &&
+            startingCastleHealth > 0)
         {
             float castleHealthPercentage =
                 (float)towerHealth.CurrentHealth /
                 startingCastleHealth;
 
             if (castleHealthPercentage >= 0.75f &&
-                completedWaveTime <= fastWaveCompletionTime)
+                completedWaveTime <=
+                fastWaveCompletionTime)
             {
                 adjustment += difficultyAdjustment;
             }
@@ -343,7 +449,7 @@ public class EnemySpawner : MonoBehaviour
             $"Wave {currentWave} completed in " +
             $"{completedWaveTime:F1} seconds. " +
             $"Next difficulty multiplier: " +
-            $"{adaptiveDifficultyMultiplier:F2}"
+            $"{adaptiveDifficultyMultiplier:F2}."
         );
     }
 }
