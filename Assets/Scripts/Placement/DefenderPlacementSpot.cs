@@ -1,34 +1,41 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum DefenderPurchaseType
+{
+    Archer,
+    Cannon,
+    Frost
+}
 
 public class DefenderPlacementSpot : MonoBehaviour
 {
+    [Header("Defender Prefabs")]
+    [SerializeField] private GameObject archerPrefab;
+    [SerializeField] private GameObject cannonPrefab;
+    [SerializeField] private GameObject frostPrefab;
+
+    [Header("Defender Costs")]
+    [SerializeField] private int archerCost = 50;
+    [SerializeField] private int cannonCost = 100;
+    [SerializeField] private int frostCost = 75;
+
     [Header("Placement")]
-    [SerializeField] private GameObject defenderPrefab;
-    [SerializeField] private int defenderCost = 50;
     [SerializeField] private float defenderHeight = 1f;
 
     [Header("Feedback Colours")]
     [SerializeField] private Color affordableColour = Color.green;
     [SerializeField] private Color unaffordableColour = Color.red;
-    
-    [Header("Path Tile Visuals")]
-    [SerializeField] private GameObject straightPathTile;
-    [SerializeField] private GameObject cornerPathTile;
-    [SerializeField] private GameObject threeWayPathTile;
-    [SerializeField] private GameObject fourWayPathTile;
-    [SerializeField] private GameObject endPathTile;
-    [SerializeField] private float pathTileYOffset = 0.03f;
-    [SerializeField] private float pathTileScale = 1f;
 
-    
     private bool isOccupied;
     private Camera mainCamera;
     private Renderer spotRenderer;
     private Color originalColour;
 
-    
+    public int ArcherCost => archerCost;
+    public int CannonCost => cannonCost;
+    public int FrostCost => frostCost;
+
     private void Awake()
     {
         mainCamera = Camera.main;
@@ -40,7 +47,6 @@ public class DefenderPlacementSpot : MonoBehaviour
         }
     }
 
-    
     private void Update()
     {
         if (Mouse.current == null || isOccupied)
@@ -54,11 +60,10 @@ public class DefenderPlacementSpot : MonoBehaviour
         if (mouseIsOverSpot &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
-            TryPlaceDefender();
+            OpenDefenderSelection();
         }
     }
 
-    
     private bool IsMouseOverSpot()
     {
         if (mainCamera == null)
@@ -71,8 +76,11 @@ public class DefenderPlacementSpot : MonoBehaviour
             return false;
         }
 
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        Vector2 mousePosition =
+            Mouse.current.position.ReadValue();
+
+        Ray ray =
+            mainCamera.ScreenPointToRay(mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -83,7 +91,6 @@ public class DefenderPlacementSpot : MonoBehaviour
         return false;
     }
 
-    
     private void UpdateAppearance(bool mouseIsOverSpot)
     {
         if (spotRenderer == null)
@@ -97,46 +104,96 @@ public class DefenderPlacementSpot : MonoBehaviour
             return;
         }
 
-        bool canAfford =
+        bool canAffordAnyDefender =
             CurrencyManager.Instance != null &&
-            CurrencyManager.Instance.CurrentGold >= defenderCost;
+            CurrencyManager.Instance.CurrentGold >=
+            Mathf.Min(archerCost, frostCost, cannonCost);
 
         spotRenderer.material.color =
-            canAfford ? affordableColour : unaffordableColour;
+            canAffordAnyDefender
+                ? affordableColour
+                : unaffordableColour;
     }
 
-    
-    private void TryPlaceDefender()
+    private void OpenDefenderSelection()
     {
-        if (isOccupied || defenderPrefab == null)
+        if (DefenderSelectionUI.Instance == null)
         {
+            Debug.LogError(
+                "No DefenderSelectionUI exists in the scene."
+            );
             return;
+        }
+
+        DefenderSelectionUI.Instance.Open(this);
+    }
+
+    public bool TryPlaceDefender(
+        DefenderPurchaseType purchaseType
+    )
+    {
+        if (isOccupied)
+        {
+            return false;
+        }
+
+        GameObject selectedPrefab = null;
+        int selectedCost = 0;
+
+        switch (purchaseType)
+        {
+            case DefenderPurchaseType.Cannon:
+                selectedPrefab = cannonPrefab;
+                selectedCost = cannonCost;
+                break;
+
+            case DefenderPurchaseType.Frost:
+                selectedPrefab = frostPrefab;
+                selectedCost = frostCost;
+                break;
+
+            default:
+                selectedPrefab = archerPrefab;
+                selectedCost = archerCost;
+                break;
+        }
+
+        if (selectedPrefab == null)
+        {
+            Debug.LogError(
+                $"{purchaseType} prefab has not been assigned."
+            );
+            return false;
         }
 
         if (CurrencyManager.Instance == null)
         {
-            Debug.LogError("No Currency Manager exists in the scene.");
-            return;
+            Debug.LogError(
+                "No Currency Manager exists in the scene."
+            );
+            return false;
         }
 
         bool purchaseSuccessful =
-            CurrencyManager.Instance.TrySpendGold(defenderCost);
+            CurrencyManager.Instance.TrySpendGold(selectedCost);
 
         if (!purchaseSuccessful)
         {
-            return;
+            return false;
         }
 
         Vector3 defenderPosition =
             transform.position + Vector3.up * defenderHeight;
 
         Instantiate(
-            defenderPrefab,
+            selectedPrefab,
             defenderPosition,
             Quaternion.identity
         );
 
         isOccupied = true;
         gameObject.SetActive(false);
+
+        return true;
     }
 }

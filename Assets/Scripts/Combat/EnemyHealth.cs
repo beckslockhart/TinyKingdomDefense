@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using UnityEngine;
-
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -12,24 +12,24 @@ public class EnemyHealth : MonoBehaviour
 
     public int CurrentHealth => currentHealth;
     public int MaximumHealth => maximumHealth;
+    public bool IsDead => isDead;
 
-   
+    public event Action<EnemyHealth> Died;
+
     private void Awake()
     {
         currentHealth = maximumHealth;
     }
 
-    
     public void IncreaseMaximumHealth(int additionalHealth)
     {
         maximumHealth += additionalHealth;
         currentHealth += additionalHealth;
     }
-    
-    
+
     public void TakeDamage(int damageAmount)
     {
-        if (isDead)
+        if (isDead || damageAmount <= 0)
         {
             return;
         }
@@ -45,10 +45,9 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-   
     private IEnumerator DamageFlash()
     {
-        Renderer enemyRenderer = GetComponent<Renderer>();
+        Renderer enemyRenderer = GetComponentInChildren<Renderer>();
 
         if (enemyRenderer == null)
         {
@@ -66,7 +65,6 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-   
     private void Die()
     {
         if (isDead)
@@ -80,6 +78,8 @@ public class EnemyHealth : MonoBehaviour
         {
             CurrencyManager.Instance.AddGold(goldReward);
         }
+
+        Died?.Invoke(this);
 
         Destroy(gameObject);
     }

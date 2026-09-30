@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7609121664371514082}
   - component: {fileID: -516855242045993582}
   m_Layer: 0
-  m_Name: GoblinPlaceholder
+  m_Name: BruteGoblinPH
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,8 +30,8 @@ Transform:
   m_GameObject: {fileID: 753092691098206456}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.85712, y: 0, z: -88.74191}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalPosition: {x: 14.011, y: -0.806, z: 0}
+  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8724691770196649274}
@@ -130,12 +130,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d1a4a970acd76248819de180b45a146, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
-  behaviourType: 0
-  movementSpeed: 3
+  behaviourType: 2
+  movementSpeed: 1.5
   heightAbovePath: 0.75
-  attackDamage: 5
-  attackInterval: 2
-  defenderAttackRange: 2.6
+  attackDamage: 15
+  attackInterval: 2.5
+  defenderAttackRange: 3
   sprintSpeedMultiplier: 1.8
   sprintDuration: 1.2
   sprintCooldown: 3.5
@@ -154,8 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a20b778b2dc27154da5929e6dba05064, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  maximumHealth: 50
-  goldReward: 10
+  maximumHealth: 140
+  goldReward: 25
 --- !u!1001 &9812112508645723
 PrefabInstance:
   m_ObjectHideFlags: 0

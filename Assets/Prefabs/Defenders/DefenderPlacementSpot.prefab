@@ -128,8 +128,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 591c485c744636a46a34c41df491fd69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefenderPlacementSpot
-  defenderPrefab: {fileID: 8156804369098633659, guid: 2c934a54b72cd4943bd3fed59750c8b8, type: 3}
-  defenderCost: 50
+  archerPrefab: {fileID: 8156804369098633659, guid: 2c934a54b72cd4943bd3fed59750c8b8, type: 3}
+  cannonPrefab: {fileID: 8156804369098633659, guid: dee90bfaa2c90824ca05ff60229e4f9d, type: 3}
+  frostPrefab: {fileID: 8156804369098633659, guid: a20392a8c2e09f142a9275eca3f97bc8, type: 3}
+  archerCost: 50
+  cannonCost: 100
+  frostCost: 75
   defenderHeight: 1
   affordableColour: {r: 0, g: 1, b: 0, a: 1}
   unaffordableColour: {r: 1, g: 0, b: 0, a: 1}

@@ -143,9 +143,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f27a573e3fa8f54e8627ff5e812dce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefenderAttack
-  attackRange: 7
-  attackDamage: 20
-  attackInterval: 0.8
+  attackRange: 4.5
+  attackDamage: 10
+  attackInterval: 1.5
   projectilePrefab: {fileID: 863979787802589119, guid: 5b4638fdc97c26044848539b0debaab6, type: 3}
 --- !u!1001 &1270449739316150701
 PrefabInstance:
