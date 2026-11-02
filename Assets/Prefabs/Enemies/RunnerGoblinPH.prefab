@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maximumHealth: 30
-  goldReward: 8
+  goldReward: 18
 --- !u!1001 &9812112508645723
 PrefabInstance:
   m_ObjectHideFlags: 0
