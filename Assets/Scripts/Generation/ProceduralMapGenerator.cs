@@ -32,6 +32,11 @@ public class ProceduralMapGenerator : MonoBehaviour
     [Header("Combat")]
     [SerializeField] private AttackProjectile projectilePrefab;
 
+    [Header("Castle Visual")]
+    [SerializeField] private GameObject castleVisualPrefab;
+    [SerializeField] private float castleVisualScale = 1f;
+    [SerializeField] private Vector3 castleVisualOffset = Vector3.zero;
+
     private readonly HashSet<Vector2Int> pathCells = new();
     private readonly HashSet<Vector2Int> placementCells = new();
     private readonly HashSet<Vector2Int> forestCells = new();
@@ -39,11 +44,6 @@ public class ProceduralMapGenerator : MonoBehaviour
     private readonly List<List<Vector3>> generatedPaths = new();
     private readonly List<GameObject> generatedPlacementSpots = new();
     private readonly List<GameObject> generatedForestClusters = new();
-    
-    [Header("Castle Visual")]
-    [SerializeField] private GameObject castleVisualPrefab;
-    [SerializeField] private float castleVisualScale = 1f;
-    [SerializeField] private Vector3 castleVisualOffset = Vector3.zero;
 
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -53,7 +53,6 @@ public class ProceduralMapGenerator : MonoBehaviour
     public IReadOnlyList<List<Vector3>> GeneratedPaths =>
         generatedPaths;
 
-    
     private void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
@@ -63,7 +62,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         GenerateMap();
     }
 
-    
     public void GenerateMap()
     {
         ClearGeneratedPlacementSpots();
@@ -81,7 +79,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         CreatePlaceholderTower();
     }
 
-    
     private void GeneratePaths()
     {
         Vector2Int centre = GetCentreCell();
@@ -110,7 +107,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         }
     }
 
-    
     private Vector2Int GetRandomEdgeCell(int edge)
     {
         int randomX = Random.Range(2, gridSizeX - 2);
@@ -125,7 +121,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         };
     }
 
-    
     private void CreatePath(
         Vector2Int startingCell,
         Vector2Int destination)
@@ -194,7 +189,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         generatedPaths.Add(worldPath);
     }
 
-    
     private void AddPathCell(
         Vector2Int cell,
         List<Vector3> worldPath)
@@ -203,7 +197,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         worldPath.Add(GridToWorldPosition(cell));
     }
 
-    
     private void GenerateTerrainMesh()
     {
         List<Vector3> vertices = new();
@@ -258,7 +251,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         };
     }
 
-    
     private void AddTile(
         int x,
         int z,
@@ -302,7 +294,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         triangles.Add(startingVertex + 3);
     }
 
-    
     private void GeneratePlacementSpots()
     {
         if (placementSpotPrefab == null)
@@ -386,7 +377,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         }
     }
 
-    
     private void GenerateForestClusters()
     {
         if (forestClusterPrefab == null)
@@ -450,7 +440,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         }
     }
 
-    
     private void SpawnForestCluster(Vector2Int cell)
     {
         Vector3 spawnPosition =
@@ -471,6 +460,7 @@ public class ProceduralMapGenerator : MonoBehaviour
         );
 
         forestCluster.transform.localScale *= randomScale;
+
         forestCluster.name =
             $"Forest Cluster {cell.x}, {cell.y}";
 
@@ -494,7 +484,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         return false;
     }
 
-    
     private bool IsTooCloseToForest(Vector2Int candidate)
     {
         foreach (Vector2Int forestCell in forestCells)
@@ -516,7 +505,6 @@ public class ProceduralMapGenerator : MonoBehaviour
         return false;
     }
 
-    
     private void CreatePlaceholderTower()
     {
         if (placeholderTower != null)
@@ -535,14 +523,68 @@ public class ProceduralMapGenerator : MonoBehaviour
         towerCollider.size = new Vector3(4f, 4f, 4f);
         towerCollider.center = new Vector3(0f, 2f, 0f);
 
+        GameObject baseVisual =
+            CreateCastleVisualLevel(
+                "BaseVisual",
+                0
+            );
+
+        GameObject levelOneVisual =
+            CreateCastleVisualLevel(
+                "Level1Visual",
+                1
+            );
+
+        GameObject levelTwoVisual =
+            CreateCastleVisualLevel(
+                "Level2Visual",
+                2
+            );
+
+        levelOneVisual.SetActive(false);
+        levelTwoVisual.SetActive(false);
+
+        placeholderTower.AddComponent<TowerHealth>();
+
+        TowerAttack towerAttack =
+            placeholderTower.AddComponent<TowerAttack>();
+
+        towerAttack.SetProjectilePrefab(projectilePrefab);
+
+        CastleUpgrade castleUpgrade =
+            placeholderTower.AddComponent<CastleUpgrade>();
+
+        castleUpgrade.ConfigureRuntimeVisuals(
+            baseVisual,
+            levelOneVisual,
+            levelTwoVisual
+        );
+    }
+
+    private GameObject CreateCastleVisualLevel(
+        string levelName,
+        int placeholderCount)
+    {
+        GameObject visualLevel =
+            new GameObject(levelName);
+
+        visualLevel.transform.SetParent(
+            placeholderTower.transform
+        );
+
+        visualLevel.transform.localPosition = Vector3.zero;
+        visualLevel.transform.localRotation = Quaternion.identity;
+        visualLevel.transform.localScale = Vector3.one;
+
         if (castleVisualPrefab != null)
         {
             GameObject castleVisual = Instantiate(
                 castleVisualPrefab,
-                placeholderTower.transform
+                visualLevel.transform
             );
 
-            castleVisual.name = "Castle Visual";
+            castleVisual.name = "Castle Model";
+
             castleVisual.transform.localPosition =
                 castleVisualOffset;
 
@@ -554,38 +596,86 @@ public class ProceduralMapGenerator : MonoBehaviour
         }
         else
         {
-            GameObject temporaryCube =
-                GameObject.CreatePrimitive(PrimitiveType.Cube);
-
-            temporaryCube.name = "Temporary Castle Cube";
-            temporaryCube.transform.SetParent(
-                placeholderTower.transform
-            );
-
-            temporaryCube.transform.localPosition =
-                new Vector3(0f, 2f, 0f);
-
-            temporaryCube.transform.localScale =
-                new Vector3(3f, 4f, 3f);
-
-            Collider cubeCollider =
-                temporaryCube.GetComponent<Collider>();
-
-            if (cubeCollider != null)
-            {
-                Destroy(cubeCollider);
-            }
+            CreateTemporaryCastleModel(visualLevel);
         }
 
-        placeholderTower.AddComponent<TowerHealth>();
+        for (int i = 0; i < placeholderCount; i++)
+        {
+            CreateCastleUpgradePlaceholder(
+                visualLevel,
+                i
+            );
+        }
 
-        TowerAttack towerAttack =
-            placeholderTower.AddComponent<TowerAttack>();
-
-        towerAttack.SetProjectilePrefab(projectilePrefab);
+        return visualLevel;
     }
 
-    
+    private void CreateTemporaryCastleModel(
+        GameObject visualLevel)
+    {
+        GameObject temporaryCube =
+            GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        temporaryCube.name = "Temporary Castle Cube";
+
+        temporaryCube.transform.SetParent(
+            visualLevel.transform
+        );
+
+        temporaryCube.transform.localPosition =
+            new Vector3(0f, 2f, 0f);
+
+        temporaryCube.transform.localRotation =
+            Quaternion.identity;
+
+        temporaryCube.transform.localScale =
+            new Vector3(3f, 4f, 3f);
+
+        Collider cubeCollider =
+            temporaryCube.GetComponent<Collider>();
+
+        if (cubeCollider != null)
+        {
+            Destroy(cubeCollider);
+        }
+    }
+
+    private void CreateCastleUpgradePlaceholder(
+        GameObject visualLevel,
+        int placeholderIndex)
+    {
+        GameObject placeholder =
+            GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        placeholder.name =
+            $"Upgrade Placeholder {placeholderIndex + 1}";
+
+        placeholder.transform.SetParent(
+            visualLevel.transform
+        );
+
+        placeholder.transform.localPosition =
+            new Vector3(
+                -1f + placeholderIndex * 2f,
+                4.5f,
+                0f
+            );
+
+        placeholder.transform.localRotation =
+            Quaternion.identity;
+
+        placeholder.transform.localScale =
+            new Vector3(0.5f, 0.5f, 0.5f);
+
+        Collider placeholderCollider =
+            placeholder.GetComponent<Collider>();
+
+        if (placeholderCollider != null)
+        {
+            Destroy(placeholderCollider);
+        }
+    }
+
     private Vector2Int GetCentreCell()
     {
         return new Vector2Int(
