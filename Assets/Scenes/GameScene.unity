@@ -290,9 +290,9 @@ MonoBehaviour:
   runnerGoblinPrefab: {fileID: 7609121664371514082, guid: 0d2345dc2438cfa448e7c21f79f4a541, type: 3}
   bruteGoblinPrefab: {fileID: 7609121664371514082, guid: e0566ab0e211ddf4291df1a05e30ecb7, type: 3}
   firstWaveDelay: 2
-  timeBetweenWaves: 8
-  baseSpawnInterval: 1.5
-  minimumSpawnInterval: 0.65
+  timeBetweenWaves: 10
+  baseSpawnInterval: 2.5
+  minimumSpawnInterval: 1.2
   startingWaveBudget: 6
   budgetIncreasePerWave: 3
   standardGoblinCost: 1
@@ -3834,7 +3834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 689d27e13f2f58e46b3f078c7f328c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyManager
-  startingGold: 150
+  startingGold: 250
 --- !u!4 &1545877450
 Transform:
   m_ObjectHideFlags: 0
