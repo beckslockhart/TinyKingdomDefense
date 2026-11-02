@@ -1,19 +1,22 @@
+using System;
 using UnityEngine;
-
 
 public class CurrencyManager : MonoBehaviour
 {
-    public static CurrencyManager Instance { get; private set; }
+    public static CurrencyManager Instance
+    {
+        get;
+        private set;
+    }
 
     [SerializeField] private int startingGold = 150;
 
-   
     private int currentGold;
 
-   
     public int CurrentGold => currentGold;
 
-   
+    public event Action<int> GoldChanged;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -28,25 +31,59 @@ public class CurrencyManager : MonoBehaviour
         Debug.Log($"Starting gold: {currentGold}");
     }
 
-   
+    public bool CanAfford(int amount)
+    {
+        if (amount < 0)
+        {
+            return false;
+        }
+
+        return currentGold >= amount;
+    }
+
     public bool TrySpendGold(int amount)
     {
-        if (currentGold < amount)
+        if (amount <= 0)
+        {
+            Debug.LogWarning(
+                "The gold cost must be greater than zero."
+            );
+
+            return false;
+        }
+
+        if (!CanAfford(amount))
         {
             Debug.Log("Not enough gold!");
             return false;
         }
 
         currentGold -= amount;
-        Debug.Log($"Defender purchased. Gold remaining: {currentGold}");
+
+        GoldChanged?.Invoke(currentGold);
+
+        Debug.Log(
+            $"Gold spent: {amount}. " +
+            $"Gold remaining: {currentGold}"
+        );
 
         return true;
     }
 
-   
     public void AddGold(int amount)
     {
+        if (amount <= 0)
+        {
+            return;
+        }
+
         currentGold += amount;
-        Debug.Log($"Gold earned. Current gold: {currentGold}");
+
+        GoldChanged?.Invoke(currentGold);
+
+        Debug.Log(
+            $"Gold earned: {amount}. " +
+            $"Current gold: {currentGold}"
+        );
     }
 }

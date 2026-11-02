@@ -35,6 +35,32 @@ public class DefenderHealth : MonoBehaviour
         }
     }
 
+    public void IncreaseMaximumHealth(int additionalHealth)
+    {
+        if (isDestroyed || additionalHealth <= 0)
+        {
+            return;
+        }
+
+        maximumHealth += additionalHealth;
+        currentHealth += additionalHealth;
+
+        currentHealth = Mathf.Min(
+            currentHealth,
+            maximumHealth
+        );
+    }
+
+    public void RestoreToFullHealth()
+    {
+        if (isDestroyed)
+        {
+            return;
+        }
+
+        currentHealth = maximumHealth;
+    }
+
     private IEnumerator DamageFlash()
     {
         Renderer defenderRenderer =

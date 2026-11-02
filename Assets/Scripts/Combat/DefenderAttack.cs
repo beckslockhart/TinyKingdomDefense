@@ -30,10 +30,51 @@ public class DefenderAttack : MonoBehaviour
     [SerializeField] private float slowDuration = 2.5f;
 
     public DefenderAttackType DefenderType => defenderType;
+    public float AttackRange => attackRange;
+    public int AttackDamage => attackDamage;
+    public float AttackInterval => attackInterval;
+    public float AreaDamageRadius => areaDamageRadius;
+    public float SlowMultiplier => slowMultiplier;
+    public float SlowDuration => slowDuration;
 
     private void Start()
     {
         StartCoroutine(AttackContinuously());
+    }
+
+    public void ApplyUpgradeStats(
+        int additionalDamage,
+        float additionalRange,
+        float attackIntervalReduction,
+        float additionalAreaDamageRadius,
+        float slowMultiplierReduction,
+        float additionalSlowDuration)
+    {
+        attackDamage += Mathf.Max(0, additionalDamage);
+        attackRange += Mathf.Max(0f, additionalRange);
+
+        attackInterval = Mathf.Max(
+            0.15f,
+            attackInterval - Mathf.Max(0f, attackIntervalReduction)
+        );
+
+        if (defenderType == DefenderAttackType.Cannon)
+        {
+            areaDamageRadius +=
+                Mathf.Max(0f, additionalAreaDamageRadius);
+        }
+
+        if (defenderType == DefenderAttackType.Frost)
+        {
+            slowMultiplier = Mathf.Clamp(
+                slowMultiplier - Mathf.Max(0f, slowMultiplierReduction),
+                0.1f,
+                1f
+            );
+
+            slowDuration +=
+                Mathf.Max(0f, additionalSlowDuration);
+        }
     }
 
     private IEnumerator AttackContinuously()
@@ -106,7 +147,9 @@ public class DefenderAttack : MonoBehaviour
         switch (defenderType)
         {
             case DefenderAttackType.Cannon:
-                ApplyInstantAreaDamage(targetEnemy.transform.position);
+                ApplyInstantAreaDamage(
+                    targetEnemy.transform.position
+                );
                 break;
 
             case DefenderAttackType.Frost:
@@ -133,9 +176,10 @@ public class DefenderAttack : MonoBehaviour
 
     private void ApplyInstantAreaDamage(Vector3 impactPosition)
     {
-        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(
-            FindObjectsSortMode.None
-        );
+        EnemyHealth[] enemies =
+            FindObjectsByType<EnemyHealth>(
+                FindObjectsSortMode.None
+            );
 
         foreach (EnemyHealth enemy in enemies)
         {
@@ -168,15 +212,21 @@ public class DefenderAttack : MonoBehaviour
 
     private EnemyHealth FindNearestEnemy()
     {
-        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(
-            FindObjectsSortMode.None
-        );
+        EnemyHealth[] enemies =
+            FindObjectsByType<EnemyHealth>(
+                FindObjectsSortMode.None
+            );
 
         EnemyHealth nearestEnemy = null;
         float nearestDistance = attackRange;
 
         foreach (EnemyHealth enemy in enemies)
         {
+            if (enemy == null || enemy.IsDead)
+            {
+                continue;
+            }
+
             float distance = Vector3.Distance(
                 transform.position,
                 enemy.transform.position
@@ -194,9 +244,10 @@ public class DefenderAttack : MonoBehaviour
 
     private EnemyHealth FindBestCannonTarget()
     {
-        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(
-            FindObjectsSortMode.None
-        );
+        EnemyHealth[] enemies =
+            FindObjectsByType<EnemyHealth>(
+                FindObjectsSortMode.None
+            );
 
         EnemyHealth bestTarget = null;
         int largestNearbyGroup = -1;
@@ -204,6 +255,11 @@ public class DefenderAttack : MonoBehaviour
 
         foreach (EnemyHealth possibleTarget in enemies)
         {
+            if (possibleTarget == null || possibleTarget.IsDead)
+            {
+                continue;
+            }
+
             float distanceFromDefender = Vector3.Distance(
                 transform.position,
                 possibleTarget.transform.position
@@ -218,6 +274,11 @@ public class DefenderAttack : MonoBehaviour
 
             foreach (EnemyHealth otherEnemy in enemies)
             {
+                if (otherEnemy == null || otherEnemy.IsDead)
+                {
+                    continue;
+                }
+
                 float distanceFromTarget = Vector3.Distance(
                     possibleTarget.transform.position,
                     otherEnemy.transform.position
@@ -259,6 +320,9 @@ public class DefenderAttack : MonoBehaviour
                 break;
         }
 
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere(
+            transform.position,
+            attackRange
+        );
     }
 }
